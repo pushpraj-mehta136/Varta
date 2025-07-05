@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vaarta - Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="/css/chat.css" />
+  <link rel="stylesheet" href="/css/toast.css" />
+  <link rel="stylesheet" href="/css/reaction.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="chat-app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <div class="sidebar-header">
+          <div class="logo">
+            <img src="/images/logo.png" alt="Vaarta logo" class="sidebar-logo" />
+            <span>Vaarta</span>
+          </div>
+
+          <button class="sidebar-controls-toggle" onclick="toggleSidebarMenu()" title="Menu">
+            <i class="fas fa-bars"></i>
+          </button>
+
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar" title="Settings">U</div>
+          </div>
+        </div>
+
+        <div class="sidebar-controls" id="sidebarMenu">
+          <i class="fas fa-cog" title="Settings" onclick="window.location='/settings'"></i>
+          <i class="fas fa-archive" title="Archive"></i>
+          <i class="fas fa-question-circle" title="Help"></i>
+          <i class="fas fa-bell" title="Notifications"></i>
+          <a href="#" class="logout-btn" title="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search users..." id="searchUsers" autocomplete="off" />
+        </div>
+
+        <div class="tab-nav">
+          <button class="tab active" data-tab="friends" title="Friends"><i class="fas fa-user-friends"></i></button>
+          <button class="tab" data-tab="requests" title="Requests"><i class="fas fa-user-plus"></i></button>
+          <button class="tab" data-tab="search" title="Search"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div class="tab-content">
+          <div class="tab-pane active" id="friends"></div>
+          <div class="tab-pane" id="requests"></div>
+          <div class="tab-pane" id="search"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <main class="chat-area">
+      <div class="chat-header">
+        <button class="back-button" id="backBtn"><i class="fas fa-arrow-left"></i></button>
+        <div class="chat-partner">
+          <div class="chat-partner-avatar" id="partnerAvatar">--</div>
+          <div class="chat-partner-info">
+            <h3 id="partnerName">No user selected</h3>
+            <p id="partnerStatus">Click a user to start chatting</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div id="previewContainer" class="file-preview" style="display:none;"></div>
+
+      <div class="message-input">
+        <div class="input-icons">
+          <i class="far fa-smile" id="emojiToggle" title="Emoji"></i>
+          <i class="fas fa-paperclip" id="fileBtn" title="Attach file"></i>
+          <input type="file" id="fileInput" hidden />
+        </div>
+        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off" />
+        <div class="send-button" id="sendBtn" title="Send message">
+          <i class="fas fa-caret-up"></i>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container"></div>
+
+  <!-- Emoji Reaction Panel (dynamic via JS) -->
+  <div id="emojiPanel" class="emoji-panel" style="display: none;"></div>
+
+  <!-- ✅ Media Viewer Overlay -->
+  <div class="media-overlay" style="display: none; position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh; background: rgba(0,0,0,0.9);
+    justify-content: center; align-items: center; z-index: 1000; flex-direction: column;">
+    <span class="close-btn" onclick="document.querySelector('.media-overlay').style.display='none'"
+      style="color: white; font-size: 2em; position: absolute; top: 20px; right: 30px; cursor: pointer;">×</span>
+    <img id="media-content" src=""
+      style="max-width: 90vw; max-height: 80vh; border-radius: 8px; box-shadow: 0 0 10px rgba(255,255,255,0.4);" />
+  </div>
+
+  <!-- Socket and Modules -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/chat.js"></script>
+  <script src="/js/toast.js"></script>
+
+  <!-- Sidebar and Scroll Management -->
+  <script>
+    // Sidebar Toggle
+    function toggleSidebarMenu() {
+      document.getElementById("sidebarMenu").classList.toggle("open");
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("sidebarMenu");
+      const toggle = document.querySelector(".sidebar-controls-toggle");
+      if (menu.classList.contains("open") &&
+          !menu.contains(e.target) &&
+          !toggle.contains(e.target)) {
+        menu.classList.remove("open");
+      }
+    });
+
+    // Mobile scroll management
+    document.addEventListener('DOMContentLoaded', function() {
+      const body = document.body;
+      const sidebar = document.querySelector('.sidebar');
+      const tabPanes = document.querySelectorAll('.tab-pane');
+
+      // Manage body scroll when sidebar is active
+      sidebar.addEventListener('touchstart', function() {
+        body.classList.add('mobile-sidebar-open');
+      });
+
+      sidebar.addEventListener('touchend', function() {
+        setTimeout(() => {
+          if (!document.querySelector('.chat-app.chat-open')) {
+            body.classList.remove('mobile-sidebar-open');
+          }
+        }, 100);
+      });
+
+      // Prevent scroll propagation in tab panes
+      tabPanes.forEach(pane => {
+        pane.addEventListener('scroll', function() {
+          if (this.scrollTop <= 0) {
+            this.scrollTop = 1;
+          } else if (this.scrollTop + this.clientHeight >= this.scrollHeight) {
+            this.scrollTop = this.scrollHeight - this.clientHeight - 1;
+          }
+        });
+      });
+
+      // Back button behavior
+      document.getElementById("backBtn").addEventListener("click", () => {
+        document.querySelector(".chat-app").classList.remove("chat-open");
+        body.classList.remove('mobile-sidebar-open');
+      });
+    });
+
+    // Auth Guard
+    fetch("/api/session-user")
+      .then(res => {
+        if (res.status === 401) window.location.href = "/login";
+      })
+      .catch(() => window.location.href = "/login");
+
+    // Flash Toast
+    fetch('/api/flash')
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) showToast(data.type || 'info', data.message);
+      });
+  </script>
+</body>
+</html>

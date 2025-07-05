@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vaarta - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/toast.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --text-primary: #f8fafc;
+      --text-secondary: #e2e8f0;
+      --gradient-bg: linear-gradient(135deg, #1c1c3c 0%, #2d2d5d 100%);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --shadow-primary: 0 4px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--gradient-bg);
+      color: var(--text-primary);
+      padding: 1rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-lg);
+      padding: 2.5rem;
+      text-align: center;
+      transform: translateY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .auth-container:hover {
+      transform: translateY(-5px);
+    }
+
+    .auth-header {
+      margin-bottom: 2rem;
+    }
+
+    .auth-logo {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 1.25rem;
+      filter: drop-shadow(0 0 12px var(--primary));
+      transition: transform 0.3s ease;
+    }
+
+    .auth-logo:hover {
+      transform: scale(1.05);
+    }
+
+    .auth-header h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .auth-header p {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+      opacity: 0.9;
+    }
+
+    #loginForm {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 0.875rem 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .input-group:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .input-group i {
+      color: var(--text-secondary);
+      margin-right: 0.75rem;
+      font-size: 1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .input-group input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+
+    .input-group input::placeholder {
+      color: rgba(226, 232, 240, 0.6);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: var(--shadow-primary);
+    }
+
+    .auth-switch {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+    }
+
+    .auth-switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .auth-switch a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    .auth-switch a:hover::after {
+      width: 100%;
+    }
+
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 1.75rem;
+      }
+      
+      .auth-logo {
+        width: 64px;
+        height: 64px;
+      }
+      
+      .auth-header h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Loading state */
+    .btn-primary.loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .btn-primary.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <img src="/images/logo.png" alt="Vaarta Logo" class="auth-logo" />
+      <h2>Welcome Back</h2>
+      <p>Login to your Vaarta account</p>
+    </div>
+
+    <form id="loginForm">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" name="username" placeholder="Username" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="password" placeholder="Password" required />
+      </div>
+      <button type="submit" class="btn-primary">Login</button>
+    </form>
+
+    <p class="auth-switch">
+      Don't have an account? <a href="/register">Register</a>
+    </p>
+  </div>
+  <script>
+  // Fetch flash/toast messages from server
+  fetch('/api/flash')
+    .then(res => res.json())
+    .then(data => {
+      if (data.message) showToast(data.message, data.type || 'info');
+    });
+  </script>
+  <script src="/js/auth.js"></script>
+<div class="toast-container"></div>
+<script src="/js/toast.js"></script>
+</body>
+</html>
