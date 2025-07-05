@@ -7,7 +7,7 @@
     "type": "text",
     "status": "seen",
     "reactions": {
-      "pushpraj_mehta": "👎"
+      "pushpraj_mehta": "❤️"
     }
   },
   {
@@ -17,7 +17,9 @@
     "timestamp": "2025-07-05T12:05:55.039Z",
     "type": "text",
     "status": "seen",
-    "reactions": {}
+    "reactions": {
+      "pushpraj_mehta": "❤️"
+    }
   },
   {
     "from": "pratik_raj_mehta",

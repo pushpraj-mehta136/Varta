@@ -12,7 +12,7 @@ let loadingUsers = false;
 // === TIME UTILITIES ===
 async function getServerTimeISO() {
   try {
-    const res = await fetch("/api/time");
+    const res = await fetch("/api/time", { credentials: "include" });
     const data = await res.json();
     return new Date(data.timestamp).toISOString();
   } catch {
@@ -28,7 +28,7 @@ function formatTime12h(iso) {
 
 // === SOCKET EVENTS ===
 socket.on("connect", async () => {
-  const res = await fetch("/api/session-user");
+  const res = await fetch("/api/session-user", { credentials: "include" });
   if (!res.ok) return location.href = "/login";
   const data = await res.json();
   myUsername = data.username;
@@ -100,7 +100,7 @@ window.selectChat = async (partner) => {
     return;
   }
 
-  const res = await fetch(`/history/${partner}`);
+  const res = await fetch(`/history/${partner}`, { credentials: "include" });
   const history = await res.json();
   chatHistoryCache[partner] = history;
   history.forEach(msg => addMessage(msg, msg.status || "sent"));
@@ -138,7 +138,11 @@ document.getElementById("fileInput").addEventListener("change", async e => {
   const form = new FormData();
   form.append("file", file);
 
-  const res = await fetch("/api/upload", { method: "POST", body: form });
+  const res = await fetch("/api/upload", {
+  method: "POST",
+  body: form,
+  credentials: "include"
+});
   const { fileUrl, originalName } = await res.json();
 
   const timestamp = await getServerTimeISO();
@@ -291,7 +295,7 @@ function updateStatus(text) {
 
 // === FRIENDS ===
 async function loadFriends() {
-  const res = await fetch("/api/friends");
+  const res = await fetch("/api/friends", { credentials: "include" });
   const friends = await res.json();
   const pane = document.getElementById("friends");
   pane.innerHTML = friends.length ? "" : "<p class='empty'>No friends yet.</p>";
@@ -301,7 +305,7 @@ async function loadFriends() {
     div.className = "user-item";
     div.dataset.username = u.username;
     div.innerHTML = `
-      <div class="avatar">${u.username[0].toUpperCase()}</div>
+      <div class="avatar">${(u.fullname || u.username)[0].toUpperCase()}</div>
       <div class="info">
         <h4>${u.fullname || u.username}</h4>
         <p>@${u.username}</p>
@@ -313,7 +317,7 @@ async function loadFriends() {
 
 // === FRIEND REQUESTS ===
 async function loadRequests() {
-  const res = await fetch("/api/friends/requests");
+  const res = await fetch("/api/friends/requests", { credentials: "include" });
   const list = await res.json();
   const pane = document.getElementById("requests");
   pane.innerHTML = list.length ? "" : "<p class='empty'>No pending requests.</p>";
@@ -322,7 +326,7 @@ async function loadRequests() {
     const div = document.createElement("div");
     div.className = "user-item";
     div.innerHTML = `
-      <div class="avatar">${user.username[0].toUpperCase()}</div>
+      <div class="avatar">${(user.fullname || user.username)[0].toUpperCase()}</div>
       <div class="info">
         <h4>${user.fullname || user.username}</h4>
         <p>@${user.username}</p>
@@ -336,14 +340,21 @@ async function loadRequests() {
 }
 
 window.accept = async (username) => {
-  await fetch(`/api/friends/accept/${username}`, { method: "POST" });
+  await fetch(`/api/friends/accept/${username}`, {
+  method: "POST",
+  credentials: "include"
+});
   showToast("success", `Accepted ${username}`);
   socket.emit("refresh-tabs", { type: "requests", target: myUsername });
   socket.emit("refresh-tabs", { type: "friends", target: myUsername });
 };
 
 window.reject = async (username) => {
-  await fetch(`/api/friends/reject/${username}`, { method: "POST" });
+await fetch(`/api/friends/reject/${username}`, {
+  method: "POST",
+  credentials: "include"
+});
+
   showToast("info", `Rejected ${username}`);
   socket.emit("refresh-tabs", { type: "requests", target: myUsername });
 };
@@ -359,7 +370,9 @@ async function loadSearch(reset = false) {
   loadingUsers = true;
 
   const query = document.getElementById("searchUsers").value.trim();
-  const res = await fetch(`/api/users/search?q=${encodeURIComponent(query)}&page=${currentPage}`);
+  const res = await fetch(`/api/users/search?q=${encodeURIComponent(query)}&page=${currentPage}`, {
+  credentials: "include"
+});
   const users = await res.json();
   if (users.length < 10) hasMoreUsers = false;
   currentPage++;
@@ -369,7 +382,7 @@ async function loadSearch(reset = false) {
     const div = document.createElement("div");
     div.className = "user-item";
     div.innerHTML = `
-      <div class="avatar">${user.username[0].toUpperCase()}</div>
+      <div class="avatar">${(user.fullname || user.username)[0].toUpperCase()}</div>
       <div class="info">
         <h4>${user.fullname || user.username}</h4>
         <p>@${user.username}</p>
@@ -392,7 +405,13 @@ document.getElementById("searchUsers").addEventListener("input", () => loadSearc
 
 window.toggleFriendRequest = async (username, btn) => {
   const isCancel = btn.textContent === "Cancel";
-  const res = await fetch(isCancel ? `/api/friends/cancel/${username}` : `/api/friends/add/${username}`, { method: "POST" });
+  const res = await fetch(
+  isCancel ? `/api/friends/cancel/${username}` : `/api/friends/add/${username}`,
+  {
+    method: "POST",
+    credentials: "include"
+  }
+);
   const data = await res.json();
 
   if (res.ok) {
@@ -424,7 +443,11 @@ document.querySelector(".back-button").onclick = () => {
 document.querySelector(".logout-btn").onclick = async e => {
   e.preventDefault();
   if (confirm("Logout from Vaarta?")) {
-    await fetch("/api/logout", { method: "POST" });
+    await fetch("/api/logout", {
+  method: "POST",
+  credentials: "include"
+});
+
     location.href = "/login";
   }
 };

@@ -3,17 +3,11 @@ const ALLOWED_REACTIONS = ["❤️", "😂", "👍", "😮", "😢", "👎"];
 let socket = null;
 let myUsername = null;
 
-/**
- * Initialize the reaction system with socket and username context.
- */
 export function initReactions(io, username) {
   socket = io;
   myUsername = username;
 }
 
-/**
- * Adds the emoji reaction button to a message's timestamp area.
- */
 export function addReactionButton(bubble, timeContainer, timestamp, isOutgoing, toUser) {
   const emojiBtn = document.createElement("button");
   emojiBtn.className = "reaction-emoji-button";
@@ -32,12 +26,7 @@ export function addReactionButton(bubble, timeContainer, timestamp, isOutgoing, 
   }
 }
 
-/**
- * Show reaction popup positioned just above the emoji button.
- * Now includes bounds-checking to prevent overflow.
- */
 function showReactionPopup(button, bubble, timestamp, toUser) {
-  // Remove any open popups
   document.querySelectorAll(".reaction-popup").forEach(el => el.remove());
 
   const popup = document.createElement("div");
@@ -50,6 +39,7 @@ function showReactionPopup(button, bubble, timestamp, toUser) {
 
     btn.onclick = (e) => {
       e.stopPropagation();
+
       const current = bubble.querySelector(".reaction-box")?.dataset[myUsername];
       const newEmoji = (current === emoji) ? null : emoji;
 
@@ -67,47 +57,43 @@ function showReactionPopup(button, bubble, timestamp, toUser) {
   });
 
   const chatContainer = document.querySelector(".chat-app");
+  if (!chatContainer) return;
+
   chatContainer.appendChild(popup);
 
   const buttonRect = button.getBoundingClientRect();
   const containerRect = chatContainer.getBoundingClientRect();
 
-  // Compute dimensions safely after appending
   const popupWidth = popup.offsetWidth || 140;
   const popupHeight = popup.offsetHeight || 40;
 
   const top = buttonRect.top - containerRect.top - popupHeight - 8;
-
   let left = buttonRect.left - containerRect.left + (buttonRect.width / 2) - (popupWidth / 2);
 
-  // Clamp left to prevent popup overflow
-  if (left < 8) left = 8;
-  const maxLeft = containerRect.width - popupWidth - 8;
-  if (left > maxLeft) left = maxLeft;
+  left = Math.max(8, Math.min(left, containerRect.width - popupWidth - 8));
 
   popup.style.position = "absolute";
   popup.style.top = `${top}px`;
   popup.style.left = `${left}px`;
 }
 
-/**
- * Auto-dismiss the popup when clicking anywhere outside.
- */
 document.addEventListener("click", () => {
   document.querySelectorAll(".reaction-popup").forEach(el => el.remove());
+  document.querySelectorAll(".reaction-users-popup").forEach(el => el.remove());
 });
 
-/**
- * Handle incoming reaction updates from socket.
- */
 export function handleReactionUpdate({ timestamp, username, emoji }) {
   const bubble = document.querySelector(`.message[data-timestamp="${timestamp}"]`);
-  if (!bubble) return;
+  if (!bubble) {
+    console.warn("💬 No bubble found for timestamp:", timestamp);
+    return;
+  }
 
   let box = bubble.querySelector(".reaction-box");
   if (!box) {
     box = document.createElement("div");
     box.className = "reaction-box";
+    box.style.position = "absolute";
     bubble.appendChild(box);
   }
 
@@ -117,8 +103,58 @@ export function handleReactionUpdate({ timestamp, username, emoji }) {
     delete box.dataset[username];
   }
 
-  // Re-render all reactions
-  box.innerHTML = Object.entries(box.dataset)
-    .map(([user, emoji]) => `<span class="reaction-tag" title="@${user}">${emoji}</span>`)
-    .join(" ");
+  const emojiMap = {};
+  Object.entries(box.dataset).forEach(([user, emoji]) => {
+    if (!emojiMap[emoji]) emojiMap[emoji] = [];
+    emojiMap[emoji].push(user);
+  });
+
+  box.innerHTML = "";
+  Object.entries(emojiMap).forEach(([emoji, users]) => {
+    const span = document.createElement("span");
+    span.className = "reaction-tag";
+    span.textContent = emoji;
+    span.dataset.emoji = emoji;
+    span.dataset.users = users.join(",");
+
+    span.onclick = (e) => {
+      e.stopPropagation();
+      showReactionUsersPopup(e.currentTarget, emoji, users);
+    };
+
+    box.appendChild(span);
+  });
+}
+
+function showReactionUsersPopup(target, emoji, users) {
+  document.querySelectorAll(".reaction-users-popup").forEach(el => el.remove());
+
+  const popup = document.createElement("div");
+  popup.className = "reaction-users-popup";
+  popup.innerHTML = `
+    <div class="emoji">${emoji}</div>
+    <ul class="user-list">
+      ${users.map(user => `<li>@${user}</li>`).join("")}
+    </ul>
+  `;
+
+  const chatContainer = document.querySelector(".chat-app");
+  if (!chatContainer) return;
+
+  chatContainer.appendChild(popup);
+
+  const rect = target.getBoundingClientRect();
+  const containerRect = chatContainer.getBoundingClientRect();
+
+  const popupWidth = 160;
+  const popupHeight = users.length * 24 + 30;
+
+  const top = rect.top - containerRect.top - popupHeight - 6;
+  let left = rect.left - containerRect.left + rect.width / 2 - popupWidth / 2;
+
+  left = Math.max(8, Math.min(left, containerRect.width - popupWidth - 8));
+
+  popup.style.position = "absolute";
+  popup.style.top = `${top}px`;
+  popup.style.left = `${left}px`;
 }

@@ -1,5 +1,4 @@
-// toast.js
-
+// === Create Toast ===
 function createToast(type = "info", message = "") {
   const containerId = "toast-container";
   let container = document.getElementById(containerId);
@@ -26,14 +25,26 @@ function createToast(type = "info", message = "") {
   }, 5000);
 }
 
-// Flash fetcher — call once on page load to show session flash
+// === Show Flash Toast from Server Session ===
 async function showFlashToast() {
   try {
-    const res = await fetch("/api/flash");
+    const res = await fetch("/api/flash", {
+      credentials: "include" // ✅ Include session cookie (critical on production)
+    });
+
     if (!res.ok) return;
-    const { type, message } = await res.json();
-    if (message) createToast(type || "info", message);
+
+    const flash = await res.json();
+
+    // Handle multiple flash messages (if supported)
+    if (Array.isArray(flash)) {
+      flash.forEach(f => {
+        if (f?.message) createToast(f.type || "info", f.message);
+      });
+    } else if (flash?.message) {
+      createToast(flash.type || "info", flash.message);
+    }
   } catch (err) {
-    console.error("Flash toast fetch error:", err);
+    console.error("⚠️ Flash toast fetch error:", err);
   }
 }

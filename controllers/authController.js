@@ -42,48 +42,76 @@ exports.register = async (req, res) => {
     return res.status(409).json({ error: "Username or email already exists" });
   }
 
-  const hashed = await bcrypt.hash(password, 10);
-  const newUser = {
-    username,
-    email,
-    password: hashed,
-    ...rest
-  };
+  try {
+    const hashed = await bcrypt.hash(password, 10);
+    const newUser = {
+      username,
+      email,
+      password: hashed,
+      createdAt: new Date().toISOString(),
+      ...rest
+    };
 
-  if (!fs.existsSync(usersDir)) fs.mkdirSync(usersDir, { recursive: true });
+    if (!fs.existsSync(usersDir)) fs.mkdirSync(usersDir, { recursive: true });
+    fs.writeFileSync(getUserFile(username), JSON.stringify(newUser, null, 2));
 
-  fs.writeFileSync(getUserFile(username), JSON.stringify(newUser, null, 2));
-
-  req.session.user = { username, email };
-  setFlash(req, "success", "Registration successful");
-  res.status(201).json({ message: "Registered successfully" });
+    req.session.user = { username, email };
+    setFlash(req, "success", "Registration successful");
+    res.status(201).json({ message: "Registered successfully" });
+  } catch (err) {
+    console.error("❌ Registration error:", err);
+    res.status(500).json({ error: "Server error during registration" });
+  }
 };
 
 exports.login = async (req, res) => {
   const username = req.body.username?.trim().toLowerCase();
   const password = req.body.password;
 
-  const filePath = getUserFile(username);
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password required" });
+  }
 
+  const filePath = getUserFile(username);
   if (!fs.existsSync(filePath)) {
     return res.status(401).json({ error: "Invalid username or password" });
   }
 
-  const user = JSON.parse(fs.readFileSync(filePath));
-  const match = await bcrypt.compare(password, user.password);
+  try {
+    const user = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const match = await bcrypt.compare(password, user.password);
 
-  if (!match) {
-    return res.status(401).json({ error: "Invalid username or password" });
+    if (!match) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    req.session.user = { username, email: user.email };
+    setFlash(req, "success", "Login successful");
+    res.json({ message: "Login successful" });
+  } catch (err) {
+    console.error("❌ Login error:", err);
+    res.status(500).json({ error: "Server error during login" });
   }
-
-  req.session.user = { username, email: user.email };
-  setFlash(req, "success", "Login successful");
-  res.json({ message: "Login successful" });
 };
 
 exports.logout = (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie("connect.sid");
+  req.session.destroy(err => {
+    if (err) {
+      console.error("❌ Logout error:", err);
+      return res.status(500).json({ error: "Failed to log out" });
+    }
+
+    res.clearCookie("connect.sid", {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax"
+    });
+
+    if (req.headers.accept?.includes("application/json")) {
+      return res.json({ message: "Logged out" });
+    }
+
     res.redirect("/login");
   });
 };
