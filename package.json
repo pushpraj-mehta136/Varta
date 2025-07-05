@@ -1,0 +1,27 @@
+{
+  "name": "vaarta",
+  "version": "1.0.0",
+  "description": "A modern chat application using Node.js, Express, and Socket.IO",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "@capacitor/app": "^7.0.1",
+    "bcrypt": "^5.1.0",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^17.0.1",
+    "express": "^4.19.2",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "session-file-store": "^1.5.0",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "author": "Pushpraj Mehta",
+  "license": "MIT"
+}

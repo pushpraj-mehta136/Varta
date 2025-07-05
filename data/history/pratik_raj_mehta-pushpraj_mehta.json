@@ -1,0 +1,30 @@
+[
+  {
+    "from": "pushpraj_mehta",
+    "to": "pratik_raj_mehta",
+    "message": "Hlo",
+    "timestamp": "2025-07-04T13:28:04.578Z",
+    "type": "text",
+    "status": "seen",
+    "reactions": {}
+  },
+  {
+    "from": "pushpraj_mehta",
+    "to": "pratik_raj_mehta",
+    "message": "/uploads/1751635712530_Khadke Glassy.m4a",
+    "timestamp": "2025-07-04T13:28:32.646Z",
+    "type": "file",
+    "originalName": "Khadke Glassy.m4a",
+    "status": "seen",
+    "reactions": {}
+  },
+  {
+    "from": "pushpraj_mehta",
+    "to": "pratik_raj_mehta",
+    "message": "hlo",
+    "timestamp": "2025-07-05T05:49:30.815Z",
+    "type": "text",
+    "status": "sent",
+    "reactions": {}
+  }
+]
