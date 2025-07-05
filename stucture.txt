@@ -1,0 +1,58 @@
+Varta/
+│
+├── server.js                # Main entry point
+├── package.json
+├── README.md
+│
+├── config/
+│   └── multer.js            # Multer config for uploads
+│
+├── controllers/
+│   ├── authController.js    # Login, Register, Logout
+│   ├── profileController.js # Profile fetch/update, password change
+│   ├── uploadController.js  # File uploads
+│   └── friendController.js  # Friend requests and accept
+├── middleware/
+│   ├── auth.js 
+│   ├── flash.js
+├── routes/
+│   ├── auth.js
+│   ├── users.js
+│   ├── profile.js
+│   ├── upload.js
+│   ├── friends.js
+│   └── history.js
+│
+├── sockets/
+│   └── chatSocket.js        # WebSocket handlers
+│
+├── utils/
+│   └── helpers.js           # Common utility functions
+│   └── initFolders.js
+│
+├── data/
+│   ├── users/user1.json, user2.json                # user .json files
+│   ├── history/user1.json-user2.json               # chat history files
+│   ├── uploads/                                    # uploaded files
+│   └── friends/user1.json, user2.json              # friend list files
+│
+├── public/
+│   ├── index.html           # Landing Screen
+│   ├── register.html
+│   ├── login.html           # Login Screen
+│   ├── logout.html
+│   ├── chat.html
+│   ├── settings.html
+│   ├── css/
+│   │   ├── chat.css        
+│   │   ├── toast.css
+│   │   ├── reaction.css         
+│   │   └── styles.css      
+│   ├── js/
+│   │   ├── chat.js          # chat screen logic
+│   │   ├── auth.js          # login/register
+│   │   ├── friends.js       # friends handling
+│   │   ├── toast.js          # 
+│   │   └── profile.js       # profile/settings logic
+│   └── images/
+│       └── logo.png
