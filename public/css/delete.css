@@ -1,0 +1,6 @@
+/* delete.css */
+
+/* Fallback hidden state if DOM isn't removed */
+.message-wrapper.deleted {
+  display: none !important;
+}

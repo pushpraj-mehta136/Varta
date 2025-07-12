@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vaarta - Logged Out</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/logout.css" />
+  <link rel="stylesheet" href="/css/toast.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="logout-container">
+    <div class="logout-content">
+      <i class="fas fa-sign-out-alt logout-icon"></i>
+      <h1>You've been logged out</h1>
+      <p>Thank you for using Vaarta. See you soon!</p>
+      <div class="logout-buttons">
+        <a href="/login" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt btn-icon"></i> Login Again
+        </a>
+        <a href="/" class="btn btn-secondary">
+          <i class="fas fa-home btn-icon"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+<div class="toast-container"></div>
+  <script>
+  // Fetch flash/toast messages from server
+  fetch('/api/flash')
+    .then(res => res.json())
+    .then(data => {
+      if (data.message) showToast(data.message, data.type || 'info');
+    });
+  </script>
+<script src="/js/toast.js"></script>
+</body>
+</html>
