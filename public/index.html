@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Varta - Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Force Inter everywhere, preserve icons -->
+  <style>
+    html, body, input, button, textarea, select, a, span, div, h1, h2, h3, h4, h5, h6, p, label, ul, ol, li, table, th, td, nav, aside, main, section, article, header, footer {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    }
+
+    i, .fa, .fas, .far, .fal, .fab {
+      font-family: "Font Awesome 6 Free" !important;
+      font-weight: 900 !important;
+    }
+  </style>
+
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="/css/toast.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/index.css" />
+</head>
+
+<body class="landing-body">
+  <div class="landing-container">
+    <div class="landing-content glass-card">
+      <img src="/images/logo.png" alt="Vaarta Logo" class="landing-logo" />
+      <h1 class="landing-title">Welcome to <span>Varta</span></h1>
+      <p class="landing-subtitle">Private. Fast. Real-time chat for everyone.</p>
+      <div class="landing-buttons">
+        <a href="/login" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt btn-icon"></i> Login
+        </a>
+        <a href="/register" class="btn btn-secondary">
+          <i class="fas fa-user-plus btn-icon"></i> Register
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+
+  <!-- Auto-redirect if logged in -->
+  <script>
+    fetch('/api/session')
+      .then(res => res.json())
+      .then(data => {
+        if (data.session?.user?.username) {
+          window.location.href = '/chat';
+        }
+      });
+  </script>
+
+  <!-- Load flash messages -->
+  <script>
+    fetch('/api/flash')
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) showToast(data.message, data.type || 'info');
+      });
+  </script>
+
+  <script src="/js/toast.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+.reply-preview-bar {
+  display: none;
+  padding: 8px;
+  background: #222;
+  border-left: 4px solid #0af;
+  margin-bottom: 4px;
+  color: #fff;
+  font-size: 14px;
+  position: relative;
+}
+
+.reply-preview-bar .cancel-reply {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  box-sizing: border-box;
+}

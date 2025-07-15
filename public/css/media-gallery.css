@@ -1,0 +1,86 @@
+/* === MEDIA IN CHAT BUBBLES === */
+.message-content img,
+.message-content video {
+  max-width: 220px;
+  max-height: 160px;
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.message-content img:hover,
+.message-content video:hover {
+  transform: scale(1.02);
+}
+
+/* === MEDIA GALLERY OVERLAY === */
+.media-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 20, 35, 0.95);
+  backdrop-filter: blur(14px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  animation: fadeInOverlay 0.3s ease;
+}
+
+.media-preview {
+  max-width: 92vw;
+  max-height: 85vh;
+  border-radius: 16px;
+  box-shadow:
+    0 0 12px rgba(124, 77, 255, 0.3),
+    0 0 24px rgba(79, 70, 229, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.media-preview:hover {
+  transform: scale(1.015);
+}
+
+.media-overlay .close-btn {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  font-size: 2.2rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.media-overlay .close-btn:hover {
+  color: var(--text-primary);
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* Prevent text selection everywhere */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  touch-action: manipulation;
+}
+
+/* Allow text selection in inputs and textareas */
+input,
+textarea {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -ms-user-select: text !important;
+  -moz-user-select: text !important;
+}

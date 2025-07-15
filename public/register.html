@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vaarta - Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Force Inter Everywhere (but preserve FA icons) -->
+  <style>
+    html, body, input, button, textarea, select, a, span, div, h1, h2, h3, h4, h5, h6, p, label, ul, ol, li, table, th, td, nav, aside, main, section, article, header, footer {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    }
+
+    i, .fa, .fas, .far, .fal, .fab {
+      font-family: "Font Awesome 6 Free" !important;
+      font-weight: 900 !important;
+    }
+  </style>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/register.css" />
+  <link rel="stylesheet" href="/css/toast.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body class="auth-body">
+  <div class="auth-container">
+    <div class="auth-header">
+      <img src="/images/logo.png" alt="Vaarta Logo" class="auth-logo" />
+      <h2>Create Account</h2>
+      <p>Join Vaarta and start chatting</p>
+    </div>
+
+    <form id="registerForm">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" name="username" placeholder="Username" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-user-circle"></i>
+        <input type="text" name="fullname" placeholder="Full Name" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" name="email" placeholder="Email" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-calendar-alt"></i>
+        <input type="date" name="dob" placeholder="Date of Birth" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-venus-mars"></i>
+        <select name="gender" required>
+          <option value="" disabled selected hidden>Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="password" placeholder="Password" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
+      </div>
+
+      <button type="submit" class="btn-primary">Register</button>
+    </form>
+
+    <p class="auth-switch">
+      Already have an account? <a href="/login" class="auth-link">Login</a>
+    </p>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container"></div>
+  <script src="/js/toast.js"></script>
+
+  <!-- Flash Toast -->
+  <script>
+    fetch('/api/flash', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) {
+          createToast(data.type || 'info', data.message);
+        }
+      });
+  </script>
+
+  <!-- Register Handler -->
+  <script>
+    document.getElementById("registerForm")?.addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const body = Object.fromEntries(form.entries());
+
+      if (body.password !== body.confirmPassword) {
+        return createToast("error", "Passwords do not match");
+      }
+
+      try {
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          credentials: "include"
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          location.href = "/chat";
+        } else {
+          createToast("error", data.error || "Registration failed");
+        }
+      } catch (err) {
+        console.error("Registration error:", err);
+        createToast("error", "Something went wrong. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

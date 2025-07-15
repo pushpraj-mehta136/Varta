@@ -1,0 +1,412 @@
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.20);
+  --text-primary: #ffffff;
+  --text-secondary: #d3d6e4;
+  --text-muted: #b0b4c8;
+  --shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* === Menu & Reaction Buttons === */
+.menu-button,
+.reaction-button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.85;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  margin: 0 2px;
+  position: relative;
+  z-index: 10;
+}
+
+.menu-button:hover,
+.reaction-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.menu-button:active,
+.reaction-button:active {
+  transform: scale(0.95);
+}
+
+/* === Message Actions Layout === */
+.message-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+/* === Message Fade Animation === */
+.message-wrapper {
+  animation: fadeMessageIn 0.3s ease-out;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.message-wrapper.removing {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* === Popup Menu === */
+.menu-popup {
+  position: absolute;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  min-width: 180px;
+  padding: 6px 0;
+  transform: scale(0.95);
+  transform-origin: top right;
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease;
+  max-width: 90vw;
+  word-wrap: break-word;
+}
+
+.menu-popup.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.menu-popup button {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  text-align: left;
+  padding: 12px 18px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.menu-popup button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* === Submenu Center (Delete Dialog) === */
+.submenu-center-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 320px;
+  max-width: 90vw;
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+  z-index: 3000;
+  padding: 6px 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms ease, transform 200ms ease;
+  pointer-events: none;
+}
+
+.submenu-center-popup.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+  animation: floatPopup 3s ease-in-out infinite;
+}
+
+.submenu-center-popup.hide {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.95);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.submenu-center-popup button {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 16px 20px;
+  font-size: 16px;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.submenu-center-popup button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.submenu-center-popup .cancel-btn {
+  color: var(--text-secondary);
+  font-weight: 500;
+  border-top: 1px solid var(--glass-border);
+}
+
+.submenu-center-popup .delete-btn {
+  color: #ff4e4e;
+  font-weight: 600;
+}
+
+/* === Scoped Toast (Inside Chat Area) === */
+.undo-toast {
+  position: absolute;
+  bottom: clamp(16px, 4vw, 32px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 12px 20px;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 3000;
+  animation: toastSlideFade 4s forwards, floatToast 2s ease-in-out infinite;
+  backdrop-filter: blur(5px);
+  max-width: 90%;
+  word-break: break-word;
+  pointer-events: auto;
+  width: max-content;
+}
+
+/* === Buttons Inside Toast === */
+.undo-toast .undo-btn {
+  background: transparent;
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.undo-toast .undo-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.undo-toast .toast-close {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 8px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.undo-toast .toast-close:hover {
+  opacity: 1;
+}
+
+/* === Overlay === */
+.menu-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: transparent;
+  z-index: 2500;
+}
+
+/* === Animations === */
+@keyframes fadeMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastSlideFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+}
+
+@keyframes floatToast {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, -4px);
+  }
+}
+
+@keyframes floatPopup {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, calc(-50% - 4px)) scale(1);
+  }
+}
+
+/* === Mobile Responsive Adjustments === */
+@media (max-width: 768px) {
+  .menu-popup,
+  .submenu-center-popup {
+    max-width: 90vw;
+    font-size: 14px;
+  }
+
+  .menu-popup button,
+  .submenu-center-popup button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .menu-button,
+  .reaction-button {
+    font-size: 15px;
+    padding: 4px 5px;
+  }
+
+  .message-actions {
+    gap: 2px;
+  }
+
+  .undo-toast {
+    top: 16px !important;
+    bottom: auto !important;
+    animation: toastSlideFadeTop 4s forwards, floatToastTop 2s ease-in-out infinite;
+  }
+}
+
+@keyframes toastSlideFadeTop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+}
+
+@keyframes floatToastTop {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 4px);
+  }
+}
+
+/* === Accessibility === */
+.menu-button:focus-visible,
+.reaction-button:focus-visible,
+.menu-popup button:focus-visible,
+.submenu-center-popup button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+/* Prevent text selection everywhere */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  touch-action: manipulation;
+}
+
+/* Allow text selection in inputs and textareas */
+input,
+textarea {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -ms-user-select: text !important;
+  -moz-user-select: text !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .menu-popup,
+  .submenu-center-popup,
+  .undo-toast {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .menu-popup button,
+  .submenu-center-popup button {
+    color: var(--text-primary);
+  }
+
+  .menu-popup button:hover,
+  .submenu-center-popup button:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .submenu-center-popup .delete-btn {
+    color: #e53935;
+  }
+
+  .submenu-center-popup .cancel-btn {
+    color: var(--text-secondary);
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .undo-toast .undo-btn {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+  }
+
+  .undo-toast .undo-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .undo-toast .toast-close {
+    color: var(--text-primary);
+  }
+
+  .menu-button:hover,
+  .reaction-button:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .menu-button:focus-visible,
+  .reaction-button:focus-visible,
+  .menu-popup button:focus-visible,
+  .submenu-center-popup button:focus-visible {
+    outline: 2px solid rgba(0, 0, 0, 0.3);
+    outline-offset: 2px;
+  }
+}

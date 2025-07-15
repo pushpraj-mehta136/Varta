@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vaarta - Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+ <!-- CSS -->
+  <link rel="stylesheet" href="/css/settings.css" />
+  <link rel="stylesheet" href="/css/toast.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <div class="settings-container">
+    <!-- Back to Chat Button -->
+    <a href="/chat" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+
+    <h2><i class="fas fa-cog"></i> Account Settings</h2>
+
+    <form id="profileForm" class="section">
+      <h3><i class="fas fa-user"></i> Profile Information</h3>
+      <div class="input-group">
+        <i class="fas fa-user-circle"></i>
+        <input type="text" name="fullname" placeholder="Full Name" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" name="email" placeholder="Email Address" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-calendar-alt"></i>
+        <input type="date" name="dob" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-venus-mars"></i>
+        <select name="gender" required>
+          <option value="" disabled selected hidden>Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+          <option value="prefer-not-to-say">Prefer not to say</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save btn-icon"></i> Save Profile
+      </button>
+    </form>
+
+    <form id="passwordForm" class="section">
+      <h3><i class="fas fa-lock"></i> Change Password</h3>
+      <div class="input-group">
+        <i class="fas fa-key"></i>
+        <input type="password" name="oldPassword" placeholder="Current Password" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="newPassword" placeholder="New Password" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="confirmNewPassword" placeholder="Confirm New Password" required />
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-sync-alt btn-icon"></i> Update Password
+      </button>
+    </form>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container"></div>
+  <script src="/js/toast.js"></script>
+
+  <!-- Flash Toast -->
+  <script>
+    fetch('/api/flash')
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) showToast(data.message, data.type || 'info');
+      });
+  </script>
+
+  <!-- Profile Handler -->
+  <script>
+    async function fetchProfile() {
+      try {
+        const res = await fetch("/api/profile");
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        const data = await res.json();
+        for (let key in data) {
+          const input = document.querySelector(`[name="${key}"]`);
+          if (input) input.value = data[key];
+        }
+      } catch (error) {
+        console.error("Profile fetch error:", error);
+        alert("Error loading profile data. Please try again.");
+      }
+    }
+
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> Saving...';
+
+        const formData = new FormData(e.target);
+        const body = {};
+        formData.forEach((v, k) => body[k] = v);
+
+        const res = await fetch("/api/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        btn.innerHTML = '<i class="fas fa-check btn-icon"></i> Saved!';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }, 1500);
+      } catch (error) {
+        console.error("Profile save error:", error);
+        alert(error.message || "Failed to save profile");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> Updating...';
+
+        const formData = new FormData(e.target);
+        const body = {};
+        formData.forEach((v, k) => body[k] = v);
+
+        if (body.newPassword !== body.confirmNewPassword) {
+          throw new Error("New passwords don't match");
+        }
+
+        const res = await fetch("/api/password-change", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        btn.innerHTML = '<i class="fas fa-check btn-icon"></i> Updated!';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          e.target.reset();
+        }, 1500);
+      } catch (error) {
+        console.error("Password change error:", error);
+        alert(error.message || "Failed to update password");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchProfile();
+    });
+  </script>
+</body>
+</html>
